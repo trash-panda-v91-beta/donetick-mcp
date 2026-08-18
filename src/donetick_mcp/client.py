@@ -231,6 +231,16 @@ class DonetickClient:
         thing = data.get("thing", data) if isinstance(data, dict) else data
         return Thing(**thing)
 
+    async def create_thing(self, name: str, type: str, state: str | None = None) -> Thing:
+        """Create a new thing (Full API)."""
+        logger.info(f"Creating thing {name}")
+        body: dict[str, str] = {"name": name, "type": type}
+        if state is not None:
+            body["state"] = state
+        data = await self._request("POST", "/api/v1/things", json=body)
+        thing_data = data.get("res", data) if isinstance(data, dict) else data
+        return Thing(**thing_data)
+
     async def change_thing_state(self, thing_id: int, set_value: str | None = None, op: str | None = None) -> None:
         """Change a thing's state by setting a value or applying a numeric op (External API)."""
         params: dict[str, str] = {}
