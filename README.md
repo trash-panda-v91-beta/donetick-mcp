@@ -53,7 +53,7 @@ Chores: `list_chores`, `get_chore`, `create_chore`, `complete_chore`, `update_ch
 
 Things: `list_things`, `get_thing`, `get_thing_state`, `change_thing_state`, `create_thing`, `update_thing`, `delete_thing`, `get_thing_history`
 
-Circle: `get_circle_members`
+Circle: `get_circle_members`, `list_circles`, `get_join_requests`, `accept_join_request`, `join_circle`, `leave_circle`, `change_member_role`, `delete_circle_member`, `redeem_points`
 
 Projects: `list_projects`, `create_project`, `update_project`, `delete_project`
 

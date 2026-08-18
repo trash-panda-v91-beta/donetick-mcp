@@ -463,6 +463,104 @@ async def get_circle_members() -> str:
 
 @mcp.tool()
 @_guard
+async def list_circles() -> str:
+    """List circles the user belongs to."""
+    c = await get_client()
+    circles = await c.list_circles()
+    if not circles:
+        return "No circles found."
+    return json.dumps(circles, indent=2)
+
+
+@mcp.tool()
+@_guard
+async def get_join_requests() -> str:
+    """List pending join requests for the circle."""
+    c = await get_client()
+    requests = await c.get_join_requests()
+    if not requests:
+        return "No pending join requests."
+    return json.dumps(requests, indent=2)
+
+
+@mcp.tool()
+@_guard
+async def accept_join_request(request_id: int) -> str:
+    """Accept a pending circle join request.
+
+    Args:
+        request_id: The ID of the join request
+    """
+    c = await get_client()
+    await c.accept_join_request(request_id)
+    return f"Join request {request_id} accepted."
+
+
+@mcp.tool()
+@_guard
+async def join_circle(invite_code: str) -> str:
+    """Join a circle with an invite code.
+
+    Args:
+        invite_code: The circle invite code
+    """
+    c = await get_client()
+    await c.join_circle(invite_code)
+    return f"Joined circle with invite code {invite_code}."
+
+
+@mcp.tool()
+@_guard
+async def leave_circle() -> str:
+    """Leave the current circle."""
+    c = await get_client()
+    await c.leave_circle()
+    return "Left the circle."
+
+
+@mcp.tool()
+@_guard
+async def change_member_role(member_id: int, role: str) -> str:
+    """Change a circle member's role (admin, member, or manager).
+
+    Args:
+        member_id: The member's user ID
+        role: New role (admin, member, or manager)
+    """
+    c = await get_client()
+    await c.change_member_role(member_id, role)
+    return f"Member {member_id} role set to {role}."
+
+
+@mcp.tool()
+@_guard
+async def delete_circle_member(member_id: int) -> str:
+    """Remove a member from the circle.
+
+    Args:
+        member_id: The member's user ID
+    """
+    c = await get_client()
+    await c.delete_circle_member(member_id)
+    return f"Member {member_id} removed from the circle."
+
+
+@mcp.tool()
+@_guard
+async def redeem_points(member_id: int, points: int) -> str:
+    """Redeem reward points for a member.
+
+    Args:
+        member_id: The member's user ID
+        points: Number of points to redeem
+    """
+    c = await get_client()
+    await c.redeem_points(member_id, points)
+    return f"Redeemed {points} points for member {member_id}."
+
+
+@mcp.tool()
+@_guard
 async def get_chore_history(chore_id: int) -> str:
     """Get completion history for a specific chore.
 

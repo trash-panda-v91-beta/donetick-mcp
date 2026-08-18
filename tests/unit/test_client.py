@@ -350,6 +350,48 @@ class TestChoreActions:
         assert httpx_mock.get_requests()[0].method == "POST"
 
 
+class TestCircle:
+    @pytest.mark.asyncio
+    async def test_list_circles(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(url=f"{BASE}/api/v1/circles", json={"res": [{"id": 1, "name": "Home"}]})
+        circles = await client.list_circles()
+        assert circles[0]["name"] == "Home"
+
+    @pytest.mark.asyncio
+    async def test_accept_join_request_uses_param(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(url=f"{BASE}/api/v1/circles/members/requests/accept?requestId=7", json={}, method="PUT")
+        await client.accept_join_request(7)
+        request = httpx_mock.get_requests()[0]
+        assert request.url.params["requestId"] == "7"
+
+    @pytest.mark.asyncio
+    async def test_join_circle_uses_invite_code_param(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(url=f"{BASE}/api/v1/circles/join?invite_code=ABC", json={}, method="POST")
+        await client.join_circle("ABC")
+        request = httpx_mock.get_requests()[0]
+        assert request.url.params["invite_code"] == "ABC"
+
+    @pytest.mark.asyncio
+    async def test_change_member_role(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(url=f"{BASE}/api/v1/circles/members/role", json={}, method="PUT")
+        await client.change_member_role(3, "admin")
+        request = httpx_mock.get_requests()[0]
+        assert json.loads(request.content) == {"memberId": 3, "role": "admin"}
+
+    @pytest.mark.asyncio
+    async def test_delete_circle_member(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(url=f"{BASE}/api/v1/circles/3/members/delete", json={}, method="DELETE")
+        await client.delete_circle_member(3)
+        assert httpx_mock.get_requests()[0].method == "DELETE"
+
+    @pytest.mark.asyncio
+    async def test_redeem_points(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(url=f"{BASE}/api/v1/circles/3/members/points/redeem", json={}, method="POST")
+        await client.redeem_points(3, 50)
+        request = httpx_mock.get_requests()[0]
+        assert json.loads(request.content) == {"points": 50}
+
+
 class TestRateLimitAndErrors:
     @pytest.mark.asyncio
     async def test_429_retry_then_success(self, client, httpx_mock: HTTPXMock):
