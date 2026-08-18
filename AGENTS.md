@@ -1,4 +1,4 @@
-# donetick-mcp-server
+# donetick-mcp
 
 Model Context Protocol (MCP) server for [Donetick](https://donetick.com) chores management.
 Exposes Donetick as MCP tools (chore management, labels, circle/users, history/analytics) with
@@ -61,4 +61,4 @@ bumps the version in `pyproject.toml` + README, tags it, and updates `CHANGELOG.
 
 ## Links
 
-- Repo: git@github.com:trash-panda-v91-beta/donetick-mcp-server.git
+- Repo: git@github.com:trash-panda-v91-beta/donetick-mcp.git

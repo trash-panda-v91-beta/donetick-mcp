@@ -327,8 +327,8 @@ wheels = [
 ]
 
 [[package]]
-name = "donetick-mcp-server"
-version = "0.1.0"
+name = "donetick-mcp"
+version = "0.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "fastmcp" },
