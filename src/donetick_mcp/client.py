@@ -12,9 +12,8 @@ import json as json_lib
 import logging
 import random
 import time
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
-from zoneinfo import ZoneInfo
 
 import httpx2 as httpx
 
@@ -146,26 +145,21 @@ class DonetickClient:
                     logger.error(f"Invalid JSON response from {url}: {response.text[:200]}")
                     raise ValueError(f"Invalid JSON response from API: {e}") from e
 
-            except httpx.TimeoutException as e:
-                if attempt == max_retries - 1:
-                    logger.error(f"Request timeout after {max_retries} attempts: {e}")
-                    raise
-                delay = min(base_delay * (2**attempt), 60.0)
-                jitter = delay * random.uniform(-0.25, 0.25)
-                logger.warning(f"Timeout on attempt {attempt + 1}, retrying in {delay + jitter:.2f}s")
-                await asyncio.sleep(delay + jitter)
-
-            except httpx.HTTPStatusError as e:
+            except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
                 # Don't retry client errors (4xx) except 429
-                if 400 <= e.response.status_code < 500 and e.response.status_code != 429:
+                if (
+                    isinstance(e, httpx.HTTPStatusError)
+                    and 400 <= e.response.status_code < 500
+                    and e.response.status_code != 429
+                ):
                     logger.error(f"Client error: {e.response.status_code} - {e.response.text}")
                     raise
                 if attempt == max_retries - 1:
-                    logger.error(f"Server error after {max_retries} attempts: {e}")
+                    logger.error(f"Request failed after {max_retries} attempts: {e}")
                     raise
                 delay = min(base_delay * (2**attempt), 60.0)
                 jitter = delay * random.uniform(-0.25, 0.25)
-                logger.warning(f"Server error on attempt {attempt + 1}, retrying in {delay + jitter:.2f}s")
+                logger.warning(f"Retrying in {delay + jitter:.2f}s")
                 await asyncio.sleep(delay + jitter)
 
         raise Exception(f"Failed after {max_retries} retries")
@@ -236,11 +230,6 @@ class DonetickClient:
         data = await self._request("GET", f"/eapi/v1/things/{thing_id}")
         thing = data.get("thing", data) if isinstance(data, dict) else data
         return Thing(**thing)
-
-    async def set_thing_state(self, thing_id: int, state: str) -> None:
-        """Set a thing's state directly (External API)."""
-        logger.info(f"Setting thing {thing_id} state to {state}")
-        await self._request("GET", f"/eapi/v1/things/{thing_id}/state", params={"state": state})
 
     async def change_thing_state(self, thing_id: int, set_value: str | None = None, op: str | None = None) -> None:
         """Change a thing's state by setting a value or applying a numeric op (External API)."""
@@ -432,144 +421,3 @@ class DonetickClient:
                     username_map[requested] = member.userId
                     break
         return username_map
-
-    # ==================== Transformation Helpers ====================
-
-    def transform_frequency_metadata(
-        self,
-        frequency_type: str,
-        days_of_week: list[str] | None = None,
-        time: str | None = None,
-        timezone: str = "America/New_York",
-    ) -> dict:
-        """Transform simple frequency metadata to API format."""
-        if frequency_type == "days_of_the_week" and (not days_of_week or len(days_of_week) == 0):
-            raise ValueError(
-                "days_of_week parameter is required when frequency_type='days_of_the_week'. "
-                "Please provide a list of days like ['Mon', 'Wed', 'Fri'] or ['monday', 'wednesday', 'friday']"
-            )
-
-        metadata: dict[str, Any] = {}
-
-        if days_of_week and frequency_type in ("days_of_the_week", "weekly"):
-            day_map = {
-                "mon": "monday",
-                "monday": "monday",
-                "tue": "tuesday",
-                "tuesday": "tuesday",
-                "wed": "wednesday",
-                "wednesday": "wednesday",
-                "thu": "thursday",
-                "thursday": "thursday",
-                "fri": "friday",
-                "friday": "friday",
-                "sat": "saturday",
-                "saturday": "saturday",
-                "sun": "sunday",
-                "sunday": "sunday",
-            }
-            normalized_days = []
-            invalid_days = []
-            for day in days_of_week:
-                day_lower = day.lower().strip()
-                if day_lower in day_map:
-                    normalized_days.append(day_map[day_lower])
-                else:
-                    invalid_days.append(day)
-            if invalid_days:
-                raise ValueError(
-                    f"Invalid day name(s): {', '.join(invalid_days)}. "
-                    "Valid values: Mon/Monday, Tue/Tuesday, Wed/Wednesday, Thu/Thursday, "
-                    "Fri/Friday, Sat/Saturday, Sun/Sunday"
-                )
-            if not normalized_days:
-                raise ValueError(
-                    "No valid days provided in days_of_week parameter. "
-                    'At least one day is required for frequency_type="days_of_the_week"'
-                )
-            metadata["days"] = normalized_days
-            metadata["weekPattern"] = "every_week"
-            metadata["occurrences"] = []
-            metadata["weekNumbers"] = []
-
-        if time and ":" in time and len(time) <= 5:
-            hour, minute = (int(part) for part in time.split(":"))
-            tz = ZoneInfo(timezone)
-            now = datetime.now(tz)
-            metadata["time"] = now.replace(hour=hour, minute=minute, second=0, microsecond=0).isoformat()
-        elif time:
-            metadata["time"] = time
-
-        return metadata
-
-    def transform_notification_metadata(
-        self,
-        offset_minutes: int | None = None,
-        remind_at_due_time: bool = False,
-        nagging: bool = False,
-        predue: bool = False,
-    ) -> dict:
-        """Transform simple notification settings to API format."""
-        metadata: dict[str, Any] = {"nagging": nagging, "predue": predue}
-        templates = []
-        if offset_minutes is not None and offset_minutes != 0:
-            templates.append({"value": offset_minutes, "unit": "m"})
-        if remind_at_due_time:
-            templates.append({"value": 0, "unit": "m"})
-        if templates:
-            metadata["templates"] = templates
-        return metadata
-
-    def transform_subtasks(self, subtask_names: list[str]) -> list[dict]:
-        """Transform simple subtask names to API format."""
-        return [
-            {"orderId": i, "name": task, "completedAt": None, "completedBy": 0, "parentId": None}
-            for i, task in enumerate(subtask_names)
-        ]
-
-    def calculate_due_date(
-        self, frequency_type: str, frequency_metadata: dict, timezone: str = "America/New_York"
-    ) -> str:
-        """Calculate an initial due date based on frequency type and metadata."""
-        tz = ZoneInfo(timezone)
-        now = datetime.now(tz)
-
-        if frequency_type == "once":
-            due = now + timedelta(days=1)
-            due = due.replace(hour=12, minute=0, second=0, microsecond=0)
-        elif frequency_type == "days_of_the_week" and "days" in frequency_metadata:
-            day_map = {
-                "monday": 0,
-                "tuesday": 1,
-                "wednesday": 2,
-                "thursday": 3,
-                "friday": 4,
-                "saturday": 5,
-                "sunday": 6,
-            }
-            first_day = frequency_metadata["days"][0]
-            target_weekday = day_map.get(first_day, 0)
-            time_str = frequency_metadata.get("time", "")
-            if time_str and "T" in time_str:
-                time_dt = datetime.fromisoformat(time_str.replace("Z", "+00:00"))
-                target_hour, target_minute = time_dt.hour, time_dt.minute
-            else:
-                target_hour, target_minute = 12, 0
-            days_ahead = (target_weekday - now.weekday()) % 7
-            if days_ahead == 0 and now >= now.replace(hour=target_hour, minute=target_minute, second=0, microsecond=0):
-                days_ahead = 7
-            due = now + timedelta(days=days_ahead)
-            due = due.replace(hour=target_hour, minute=target_minute, second=0, microsecond=0)
-        elif frequency_type == "daily":
-            due = now + timedelta(days=1)
-            time_str = frequency_metadata.get("time", "")
-            if time_str and "T" in time_str:
-                time_dt = datetime.fromisoformat(time_str.replace("Z", "+00:00"))
-                due = due.replace(hour=time_dt.hour, minute=time_dt.minute, second=0, microsecond=0)
-            else:
-                due = due.replace(hour=12, minute=0, second=0, microsecond=0)
-        else:
-            due = now + timedelta(days=1)
-            due = due.replace(hour=12, minute=0, second=0, microsecond=0)
-
-        return due.astimezone(UTC).isoformat().replace("+00:00", "Z")
