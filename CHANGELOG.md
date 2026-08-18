@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/trash-panda-v91-beta/donetick-mcp/compare/v1.0.0...v1.1.0) (2026-08-18)
+
+
+### Features
+
+* **config:** support plaintext http base URLs for cluster deployment ([#20](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/20)) ([ad335c7](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/ad335c73b9f55a7ec72157999086eb56c6bea8d5))
+
+
+### Continuous Integration
+
+* **github-action:** update jdx/mise-action ( 7e36c90 ➔ 3c2e0cf ) ([#23](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/23)) ([ad8b4a3](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/ad8b4a3d484f9f857f59efcf856be5d974a4d03f))
+
 ## [1.0.0](https://github.com/trash-panda-v91-beta/donetick-mcp/compare/v0.1.1...v1.0.0) (2026-08-18)
 
 
