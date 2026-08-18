@@ -204,6 +204,13 @@ class ChoreHistory(BaseModel):
 class ChoreDetail(Chore):
     """Extended chore model with statistics and completion history."""
 
+    # The detail endpoint returns a lighter shape than a full chore; relax the
+    # otherwise-required Chore fields it omits.
+    frequency: int | None = Field(None, description="Frequency value")
+    circleId: int | None = Field(None, description="Circle/household ID")
+    createdAt: str | None = Field(None, description="Creation timestamp (ISO 8601)")
+    updatedAt: str | None = Field(None, description="Last update timestamp (ISO 8601)")
+
     # Analytics and statistics fields
     totalCompletedCount: int | None = Field(
         None, ge=0, description="Total number of times this chore has been completed"

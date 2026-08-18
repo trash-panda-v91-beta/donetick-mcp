@@ -126,6 +126,16 @@ class TestFullApiGaps:
             await client.update_chore_priority(1, 5)
 
     @pytest.mark.asyncio
+    async def test_update_chore_priority_message_response(self, client, httpx_mock: HTTPXMock):
+        # donetick replies {"message": ...}; client must re-fetch the chore
+        httpx_mock.add_response(
+            url=f"{BASE}/api/v1/chores/1/priority", json={"message": "Priority updated successfully"}, method="PUT"
+        )
+        httpx_mock.add_response(url=f"{BASE}/api/v1/chores/1", json=SAMPLE_CHORE)
+        chore = await client.update_chore_priority(1, 4)
+        assert chore.id == 1
+
+    @pytest.mark.asyncio
     async def test_get_circle_members(self, client, httpx_mock: HTTPXMock):
         httpx_mock.add_response(
             url=f"{BASE}/api/v1/circles/members",
@@ -210,6 +220,17 @@ class TestFullApiGaps:
         httpx_mock.add_response(
             url=f"{BASE}/api/v1/chores/1/details",
             json={"res": {**SAMPLE_CHORE, "totalCompletedCount": 5}},
+        )
+        details = await client.get_chore_details(1)
+        assert details.totalCompletedCount == 5
+
+    @pytest.mark.asyncio
+    async def test_get_chore_details_lighter_shape(self, client, httpx_mock: HTTPXMock):
+        # the detail endpoint omits frequency/circleId/createdAt/updatedAt
+        light = {k: v for k, v in SAMPLE_CHORE.items() if k not in ("frequency", "circleId", "createdAt", "updatedAt")}
+        httpx_mock.add_response(
+            url=f"{BASE}/api/v1/chores/1/details",
+            json={"res": {**light, "totalCompletedCount": 5}},
         )
         details = await client.get_chore_details(1)
         assert details.totalCompletedCount == 5
