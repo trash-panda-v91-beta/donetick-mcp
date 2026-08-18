@@ -1,7 +1,6 @@
 """Configuration management for Donetick MCP server."""
 
 import logging
-import os
 
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -20,11 +19,6 @@ class Config(BaseSettings):
 
     @model_validator(mode="after")
     def _validate(self) -> Config:
-        if os.getenv("PYTEST_CURRENT_TEST") is not None:
-            if self.donetick_base_url is not None:
-                self.donetick_base_url = self.donetick_base_url.rstrip("/")
-            return self
-
         base = self.donetick_base_url or ""
         errors: list[str] = []
         if not base:
