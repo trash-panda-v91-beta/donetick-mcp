@@ -49,11 +49,13 @@ FASTMCP_TRANSPORT=streamable-http FASTMCP_HOST=0.0.0.0 FASTMCP_PORT=8000 \
 
 ## Tools
 
-Chores: `list_chores`, `get_chore`, `create_chore`, `complete_chore`, `update_chore`, `delete_chore`, `update_chore_priority`, `update_chore_assignee`, `skip_chore`, `update_subtask_completion`
+Chores: `list_chores`, `get_chore`, `create_chore`, `complete_chore`, `update_chore`, `delete_chore`, `update_chore_priority`, `update_chore_assignee`, `skip_chore`, `update_subtask_completion`, `archive_chore`, `unarchive_chore`, `undo_chore`, `approve_chore`, `reject_chore`, `start_chore`, `pause_chore`
 
-Things: `list_things`, `get_thing`, `get_thing_state`, `change_thing_state`, `create_thing`
+Things: `list_things`, `get_thing`, `get_thing_state`, `change_thing_state`, `create_thing`, `update_thing`, `delete_thing`, `get_thing_history`
 
 Circle: `get_circle_members`
+
+Projects: `list_projects`, `create_project`, `update_project`, `delete_project`
 
 History: `get_chore_history`, `get_all_chores_history`, `get_chore_details`
 

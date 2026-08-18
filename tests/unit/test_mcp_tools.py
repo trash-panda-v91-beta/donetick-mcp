@@ -55,7 +55,7 @@ class TestToolList:
     async def test_list_tools(self):
         tools = await list_tools()
         names = {t.name for t in tools}
-        assert len(tools) == 19
+        assert len(tools) == 33
         assert {
             "list_chores",
             "get_chore",
@@ -76,6 +76,20 @@ class TestToolList:
             "get_thing_state",
             "change_thing_state",
             "create_thing",
+            "update_thing",
+            "delete_thing",
+            "get_thing_history",
+            "archive_chore",
+            "unarchive_chore",
+            "undo_chore",
+            "approve_chore",
+            "reject_chore",
+            "start_chore",
+            "pause_chore",
+            "list_projects",
+            "create_project",
+            "update_project",
+            "delete_project",
         } == names
 
 

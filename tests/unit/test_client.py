@@ -7,7 +7,7 @@ import pytest
 from pytest_httpx2 import HTTPXMock
 
 from donetick_mcp.client import DonetickClient
-from donetick_mcp.models import ChoreUpdate
+from donetick_mcp.models import ChoreUpdate, ProjectUpdate
 
 
 @pytest.fixture
@@ -278,6 +278,76 @@ class TestThings:
         request = httpx_mock.get_requests()[0]
         assert request.method == "POST"
         assert json.loads(request.content) == {"name": "Water Tank", "type": "number", "state": "50"}
+
+    @pytest.mark.asyncio
+    async def test_update_thing(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(
+            url=f"{BASE}/api/v1/things",
+            json={"res": {"id": 1, "name": "Water Tank", "type": "number", "state": "60"}},
+            method="PUT",
+        )
+        thing = await client.update_thing(1, name="Water Tank", type="number", state="60")
+        assert thing.state == "60"
+        request = httpx_mock.get_requests()[0]
+        assert json.loads(request.content) == {"id": 1, "name": "Water Tank", "type": "number", "state": "60"}
+
+    @pytest.mark.asyncio
+    async def test_delete_thing(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(url=f"{BASE}/api/v1/things/1", json={}, method="DELETE")
+        await client.delete_thing(1)
+        assert httpx_mock.get_requests()[0].method == "DELETE"
+
+    @pytest.mark.asyncio
+    async def test_get_thing_history(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(
+            url=f"{BASE}/api/v1/things/1/history",
+            json=[{"id": 9, "thingId": 1, "state": "50"}],
+        )
+        history = await client.get_thing_history(1)
+        assert history[0].state == "50"
+
+
+class TestProjects:
+    @pytest.mark.asyncio
+    async def test_list_projects(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(
+            url=f"{BASE}/api/v1/projects",
+            json={"res": [{"id": 1, "name": "Home", "circleId": 2}]},
+        )
+        projects = await client.list_projects()
+        assert projects[0].name == "Home"
+
+    @pytest.mark.asyncio
+    async def test_create_project(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(
+            url=f"{BASE}/api/v1/projects",
+            json={"res": {"id": 1, "name": "Home", "circleId": 2}},
+            method="POST",
+        )
+        project = await client.create_project(ProjectUpdate(name="Home"))
+        assert project.id == 1
+        request = httpx_mock.get_requests()[0]
+        assert json.loads(request.content) == {"name": "Home"}
+
+    @pytest.mark.asyncio
+    async def test_delete_project(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(url=f"{BASE}/api/v1/projects/1", json={}, method="DELETE")
+        await client.delete_project(1)
+        assert httpx_mock.get_requests()[0].method == "DELETE"
+
+
+class TestChoreActions:
+    @pytest.mark.asyncio
+    async def test_archive_chore(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(url=f"{BASE}/api/v1/chores/1/archive", json={}, method="PUT")
+        await client.archive_chore(1)
+        assert httpx_mock.get_requests()[0].method == "PUT"
+
+    @pytest.mark.asyncio
+    async def test_undo_chore(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(url=f"{BASE}/api/v1/chores/1/undo", json={}, method="POST")
+        await client.undo_chore(1)
+        assert httpx_mock.get_requests()[0].method == "POST"
 
 
 class TestRateLimitAndErrors:

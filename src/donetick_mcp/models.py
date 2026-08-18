@@ -254,3 +254,41 @@ class Thing(BaseModel):
     thingChores: list[Any] = Field(default_factory=list, description="Associated thing chore links")
     createdAt: str | None = Field(None, description="Creation timestamp (ISO 8601)")
     updatedAt: str | None = Field(None, description="Last update timestamp (ISO 8601)")
+
+
+class ThingHistory(BaseModel):
+    """A state change record for a thing."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: int = Field(..., description="History record ID")
+    thingId: int = Field(..., description="Thing ID")
+    state: str | None = Field(None, description="State value at this record")
+    createdAt: str | None = Field(None, description="Creation timestamp (ISO 8601)")
+    updatedAt: str | None = Field(None, description="Last update timestamp (ISO 8601)")
+
+
+class Project(BaseModel):
+    """Project model (groups chores)."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: int = Field(..., description="Project ID")
+    name: str = Field(..., description="Project name")
+    description: str | None = Field(None, description="Project description")
+    color: str | None = Field(None, description="Project color (hex code)")
+    icon: str | None = Field(None, description="Project icon")
+    circleId: int = Field(..., description="Circle/household ID")
+    createdAt: str | None = Field(None, description="Creation timestamp (ISO 8601)")
+    updatedAt: str | None = Field(None, description="Last update timestamp (ISO 8601)")
+
+
+class ProjectUpdate(BaseModel):
+    """Fields accepted when creating/updating a project."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    name: str = Field(..., min_length=1, description="Project name")
+    description: str | None = Field(None, description="Project description")
+    color: str | None = Field(None, description="Project color (hex code)")
+    icon: str | None = Field(None, description="Project icon")
