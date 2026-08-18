@@ -404,7 +404,7 @@ class DonetickClient:
     async def get_circle_members(self) -> list[CircleMember]:
         """Get all members in the user's circle."""
         logger.info("Fetching circle members")
-        data = await self._request("GET", "/api/v1/circles/members/")
+        data = await self._request("GET", "/api/v1/circles/members")
         members_data = data.get("res", data) if isinstance(data, dict) else data
         return [CircleMember(**member_data) for member_data in members_data]
 

@@ -128,7 +128,7 @@ class TestFullApiGaps:
     @pytest.mark.asyncio
     async def test_get_circle_members(self, client, httpx_mock: HTTPXMock):
         httpx_mock.add_response(
-            url=f"{BASE}/api/v1/circles/members/",
+            url=f"{BASE}/api/v1/circles/members",
             json=[
                 {
                     "id": 1,
@@ -149,7 +149,7 @@ class TestFullApiGaps:
     @pytest.mark.asyncio
     async def test_lookup_user_ids(self, client, httpx_mock: HTTPXMock):
         httpx_mock.add_response(
-            url=f"{BASE}/api/v1/circles/members/",
+            url=f"{BASE}/api/v1/circles/members",
             json=[
                 {
                     "id": 1,
