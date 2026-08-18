@@ -276,15 +276,16 @@ class DonetickClient:
                 if "created_by" in label and label["created_by"] is None:
                     label.pop("created_by")
 
-        # If assignedTo is set it must be present in assignees
+        # If assignedTo is set it must be present in assignees (as {"userId": n})
         assigned_to = chore_dict.get("assignedTo")
         assignees = chore_dict.get("assignees", [])
         if assigned_to is not None:
             if not isinstance(assignees, list):
                 assignees = []
                 chore_dict["assignees"] = assignees
-            if assigned_to not in assignees:
-                assignees.append(assigned_to)
+            ids = [a if isinstance(a, int) else a.get("userId") for a in assignees]
+            if assigned_to not in ids:
+                assignees.append({"userId": assigned_to})
                 chore_dict["assignees"] = assignees
 
         logger.debug(f"Sending update payload: {json_lib.dumps(chore_dict, indent=2)}")
@@ -303,8 +304,10 @@ class DonetickClient:
     async def complete_chore(self, chore_id: int, completed_by: int | None = None) -> Chore:
         """Mark a chore as complete."""
         logger.info(f"Completing chore {chore_id}")
-        params = {"completedBy": completed_by} if completed_by is not None else None
-        data = await self._request("POST", f"/api/v1/chores/{chore_id}/do", params=params)
+        body = {}
+        if completed_by is not None:
+            body["completedBy"] = completed_by
+        data = await self._request("POST", f"/api/v1/chores/{chore_id}/do", json=body)
         if isinstance(data, dict) and "res" in data:
             data = data["res"]
         return Chore(**data)
@@ -314,6 +317,11 @@ class DonetickClient:
         if not 0 <= priority <= 4:
             raise ValueError(f"Priority must be 0-4, got {priority}")
         data = await self._request("PUT", f"/api/v1/chores/{chore_id}/priority", json={"priority": priority})
+        if "message" in data:
+            updated_chore = await self.get_chore(chore_id)
+            if updated_chore is None:
+                raise ValueError(f"Chore {chore_id} was updated but could not be retrieved")
+            return updated_chore
         if isinstance(data, dict) and "res" in data:
             data = data["res"]
         return Chore(**data)
