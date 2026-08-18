@@ -24,7 +24,10 @@ from .models import (
     ChoreHistory,
     ChoreUpdate,
     CircleMember,
+    Project,
+    ProjectUpdate,
     Thing,
+    ThingHistory,
 )
 
 logger = logging.getLogger(__name__)
@@ -251,6 +254,32 @@ class DonetickClient:
         logger.info(f"Changing thing {thing_id} state: {params}")
         await self._request("GET", f"/eapi/v1/things/{thing_id}/state/change", params=params)
 
+    async def update_thing(self, thing_id: int, name: str, type: str, state: str | None = None) -> Thing:
+        """Update a thing's name, type, and optional state (Full API)."""
+        logger.info(f"Updating thing {thing_id}")
+        body: dict[str, object] = {"id": thing_id, "name": name, "type": type}
+        if state is not None:
+            body["state"] = state
+        data = await self._request("PUT", "/api/v1/things", json=body)
+        thing_data = data.get("res", data) if isinstance(data, dict) else data
+        return Thing(**thing_data)
+
+    async def delete_thing(self, thing_id: int) -> None:
+        """Delete a thing (Full API)."""
+        logger.info(f"Deleting thing {thing_id}")
+        await self._request("DELETE", f"/api/v1/things/{thing_id}")
+
+    async def get_thing_history(self, thing_id: int) -> list[ThingHistory]:
+        """Get a thing's state-change history (Full API)."""
+        logger.info(f"Fetching thing {thing_id} history")
+        data = await self._request("GET", f"/api/v1/things/{thing_id}/history")
+        rows = data.get("res", data) if isinstance(data, dict) else data
+        if isinstance(rows, dict):
+            rows = rows.get("history", rows.get("res", []))
+        if not isinstance(rows, list):
+            rows = []
+        return [ThingHistory(**r) for r in rows]
+
     # ==================== Full API (api/v1) - external gaps ====================
 
     async def get_chore(self, chore_id: int) -> Chore | None:
@@ -425,6 +454,66 @@ class DonetickClient:
         data = await self._request("GET", "/api/v1/circles/members")
         members_data = data.get("res", data) if isinstance(data, dict) else data
         return [CircleMember(**member_data) for member_data in members_data]
+
+    # ==================== Chore lifecycle actions (api/v1/chores) ====================
+
+    async def archive_chore(self, chore_id: int) -> None:
+        """Archive a chore."""
+        await self._request("PUT", f"/api/v1/chores/{chore_id}/archive", json={})
+
+    async def unarchive_chore(self, chore_id: int) -> None:
+        """Unarchive a chore."""
+        await self._request("PUT", f"/api/v1/chores/{chore_id}/unarchive", json={})
+
+    async def undo_chore(self, chore_id: int) -> None:
+        """Undo the last completion of a chore."""
+        await self._request("POST", f"/api/v1/chores/{chore_id}/undo", json={})
+
+    async def approve_chore(self, chore_id: int) -> None:
+        """Approve a pending chore completion."""
+        await self._request("POST", f"/api/v1/chores/{chore_id}/approve", json={})
+
+    async def reject_chore(self, chore_id: int) -> None:
+        """Reject a pending chore completion."""
+        await self._request("POST", f"/api/v1/chores/{chore_id}/reject", json={})
+
+    async def start_chore(self, chore_id: int) -> None:
+        """Mark a chore as in progress (timer)."""
+        await self._request("PUT", f"/api/v1/chores/{chore_id}/start", json={})
+
+    async def pause_chore(self, chore_id: int) -> None:
+        """Pause a running chore timer."""
+        await self._request("PUT", f"/api/v1/chores/{chore_id}/pause", json={})
+
+    # ==================== Projects (api/v1/projects) ====================
+
+    async def list_projects(self) -> list[Project]:
+        """List all projects."""
+        logger.info("Fetching projects")
+        data = await self._request("GET", "/api/v1/projects")
+        projects = data.get("res", data) if isinstance(data, dict) else data
+        if not isinstance(projects, list):
+            projects = []
+        return [Project(**p) for p in projects]
+
+    async def create_project(self, project: ProjectUpdate) -> Project:
+        """Create a project."""
+        logger.info(f"Creating project {project.name}")
+        data = await self._request("POST", "/api/v1/projects", json=project.model_dump(exclude_none=True))
+        project_data = data.get("res", data) if isinstance(data, dict) else data
+        return Project(**project_data)
+
+    async def update_project(self, project_id: int, project: ProjectUpdate) -> Project:
+        """Update a project."""
+        logger.info(f"Updating project {project_id}")
+        data = await self._request("PUT", f"/api/v1/projects/{project_id}", json=project.model_dump(exclude_none=True))
+        project_data = data.get("res", data) if isinstance(data, dict) else data
+        return Project(**project_data)
+
+    async def delete_project(self, project_id: int) -> None:
+        """Delete a project."""
+        logger.info(f"Deleting project {project_id}")
+        await self._request("DELETE", f"/api/v1/projects/{project_id}")
 
     async def lookup_user_ids(self, usernames: list[str]) -> dict[str, int]:
         """Lookup user IDs from usernames (case-insensitive)."""

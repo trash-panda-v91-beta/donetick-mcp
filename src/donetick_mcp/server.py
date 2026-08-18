@@ -13,7 +13,7 @@ from fastmcp.server.lifespan import lifespan
 from . import __version__
 from .client import DonetickClient
 from .config import config
-from .models import ChoreUpdate
+from .models import ChoreUpdate, ProjectUpdate
 
 config.configure_logging()
 logger = logging.getLogger(__name__)
@@ -623,6 +623,208 @@ async def change_thing_state(
     c = await get_client()
     await c.change_thing_state(thing_id, set_value=set_value, op=op)
     return f"Thing {thing_id} state updated."
+
+
+@mcp.tool()
+@_guard
+async def update_thing(thing_id: int, name: str, type: str, state: str | None = None) -> str:
+    """Update a thing's name, type, and optional state.
+
+    Args:
+        thing_id: The ID of the thing
+        name: New name
+        type: Thing type (number, boolean, or text)
+        state: Optional new state value
+    """
+    c = await get_client()
+    thing = await c.update_thing(thing_id, name=name, type=type, state=state)
+    return json.dumps(thing.model_dump(), indent=2)
+
+
+@mcp.tool()
+@_guard
+async def delete_thing(thing_id: int) -> str:
+    """Delete a thing permanently.
+
+    Args:
+        thing_id: The ID of the thing
+    """
+    c = await get_client()
+    await c.delete_thing(thing_id)
+    return f"Thing {thing_id} deleted."
+
+
+@mcp.tool()
+@_guard
+async def get_thing_history(thing_id: int) -> str:
+    """Get a thing's state-change history.
+
+    Args:
+        thing_id: The ID of the thing
+    """
+    c = await get_client()
+    history = await c.get_thing_history(thing_id)
+    if not history:
+        return f"No history found for thing {thing_id}."
+    return json.dumps([h.model_dump(exclude_none=True) for h in history], indent=2)
+
+
+@mcp.tool()
+@_guard
+async def archive_chore(chore_id: int) -> str:
+    """Archive a chore (moves it out of the active list).
+
+    Args:
+        chore_id: The ID of the chore to archive
+    """
+    c = await get_client()
+    await c.archive_chore(chore_id)
+    return f"Chore {chore_id} archived."
+
+
+@mcp.tool()
+@_guard
+async def unarchive_chore(chore_id: int) -> str:
+    """Unarchive a chore (back to active).
+
+    Args:
+        chore_id: The ID of the chore to unarchive
+    """
+    c = await get_client()
+    await c.unarchive_chore(chore_id)
+    return f"Chore {chore_id} unarchived."
+
+
+@mcp.tool()
+@_guard
+async def undo_chore(chore_id: int) -> str:
+    """Undo the last completion of a chore.
+
+    Args:
+        chore_id: The ID of the chore
+    """
+    c = await get_client()
+    await c.undo_chore(chore_id)
+    return f"Chore {chore_id} completion undone."
+
+
+@mcp.tool()
+@_guard
+async def approve_chore(chore_id: int) -> str:
+    """Approve a pending chore completion (requires approval).
+
+    Args:
+        chore_id: The ID of the chore
+    """
+    c = await get_client()
+    await c.approve_chore(chore_id)
+    return f"Chore {chore_id} completion approved."
+
+
+@mcp.tool()
+@_guard
+async def reject_chore(chore_id: int) -> str:
+    """Reject a pending chore completion (requires approval).
+
+    Args:
+        chore_id: The ID of the chore
+    """
+    c = await get_client()
+    await c.reject_chore(chore_id)
+    return f"Chore {chore_id} completion rejected."
+
+
+@mcp.tool()
+@_guard
+async def start_chore(chore_id: int) -> str:
+    """Start a chore timer (mark as in progress).
+
+    Args:
+        chore_id: The ID of the chore
+    """
+    c = await get_client()
+    await c.start_chore(chore_id)
+    return f"Chore {chore_id} started."
+
+
+@mcp.tool()
+@_guard
+async def pause_chore(chore_id: int) -> str:
+    """Pause a running chore timer.
+
+    Args:
+        chore_id: The ID of the chore
+    """
+    c = await get_client()
+    await c.pause_chore(chore_id)
+    return f"Chore {chore_id} paused."
+
+
+@mcp.tool()
+@_guard
+async def list_projects() -> str:
+    """List all projects."""
+    c = await get_client()
+    projects = await c.list_projects()
+    if not projects:
+        return "No projects found."
+    return json.dumps([p.model_dump(exclude_none=True) for p in projects], indent=2)
+
+
+@mcp.tool()
+@_guard
+async def create_project(
+    name: str, description: str | None = None, color: str | None = None, icon: str | None = None
+) -> str:
+    """Create a new project.
+
+    Args:
+        name: Project name
+        description: Optional description
+        color: Optional hex color
+        icon: Optional icon identifier
+    """
+    c = await get_client()
+    project = await c.create_project(ProjectUpdate(name=name, description=description, color=color, icon=icon))
+    return json.dumps(project.model_dump(exclude_none=True), indent=2)
+
+
+@mcp.tool()
+@_guard
+async def update_project(
+    project_id: int,
+    name: str,
+    description: str | None = None,
+    color: str | None = None,
+    icon: str | None = None,
+) -> str:
+    """Update a project's name, description, color, or icon.
+
+    Args:
+        project_id: The ID of the project
+        name: New project name
+        description: Optional new description
+        color: Optional new hex color
+        icon: Optional new icon identifier
+    """
+    c = await get_client()
+    project = await c.update_project(
+        project_id, ProjectUpdate(name=name, description=description, color=color, icon=icon)
+    )
+    return json.dumps(project.model_dump(exclude_none=True), indent=2)
+
+
+@mcp.tool()
+@_guard
+async def delete_project(project_id: int) -> str:
+    """Delete a project permanently.
+
+    Args:
+        project_id: The ID of the project
+    """
+    c = await get_client()
+    await c.delete_project(project_id)
+    return f"Project {project_id} deleted."
 
 
 @mcp.tool()
