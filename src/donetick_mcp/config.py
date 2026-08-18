@@ -16,6 +16,9 @@ class Config(BaseSettings):
     log_level: str = "INFO"
     rate_limit_per_second: float = 10.0
     rate_limit_burst: int = 10
+    # Opt into plaintext http base URLs (e.g. cluster-internal .svc.cluster.local).
+    # Default stays https-only so the API token is never sent in clear.
+    allow_insecure_http: bool = False
 
     @model_validator(mode="after")
     def _validate(self) -> Config:
@@ -25,8 +28,10 @@ class Config(BaseSettings):
             errors.append(
                 "DONETICK_BASE_URL environment variable is required. Please set it to your Donetick instance URL."
             )
-        elif not base.startswith("https://"):
-            errors.append(f"DONETICK_BASE_URL must use HTTPS for security. Got: {base[:50]}")
+        elif not base.startswith("https://") and not self.allow_insecure_http:
+            errors.append(
+                f"DONETICK_BASE_URL must use HTTPS for security (or set ALLOW_INSECURE_HTTP=true). Got: {base[:50]}"
+            )
         if not self.donetick_api_token:
             errors.append(
                 "DONETICK_API_TOKEN environment variable is required. "
