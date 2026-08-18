@@ -5,7 +5,7 @@
 			"release-type": "python",
 			"extra-files": [
 				{ "type": "generic", "path": "README.md" },
-				{ "type": "toml", "path": "uv.lock", "jsonpath": "$.package[?(@.name.value=='donetick-mcp-server')].version" }
+				{ "type": "toml", "path": "uv.lock", "jsonpath": "$.package[?(@.name.value=='donetick-mcp')].version" }
 			]
 		}
 	},
