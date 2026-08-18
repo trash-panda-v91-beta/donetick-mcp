@@ -515,6 +515,46 @@ class DonetickClient:
         logger.info(f"Deleting project {project_id}")
         await self._request("DELETE", f"/api/v1/projects/{project_id}")
 
+    # ==================== Circles (api/v1/circles) ====================
+
+    async def list_circles(self) -> list[dict[str, Any]]:
+        """List circles the user belongs to."""
+        logger.info("Fetching circles")
+        data = await self._request("GET", "/api/v1/circles")
+        rows = data.get("res", data) if isinstance(data, dict) else data
+        return rows if isinstance(rows, list) else []
+
+    async def get_join_requests(self) -> list[dict[str, Any]]:
+        """List pending circle join requests."""
+        logger.info("Fetching pending circle members")
+        data = await self._request("GET", "/api/v1/circles/members/requests")
+        rows = data.get("res", data) if isinstance(data, dict) else data
+        return rows if isinstance(rows, list) else []
+
+    async def accept_join_request(self, request_id: int) -> None:
+        """Accept a pending join request."""
+        await self._request("PUT", "/api/v1/circles/members/requests/accept", params={"requestId": request_id})
+
+    async def join_circle(self, invite_code: str) -> None:
+        """Join a circle by invite code."""
+        await self._request("POST", "/api/v1/circles/join", params={"invite_code": invite_code})
+
+    async def leave_circle(self) -> None:
+        """Leave the current circle."""
+        await self._request("DELETE", "/api/v1/circles/leave")
+
+    async def change_member_role(self, member_id: int, role: str) -> None:
+        """Change a circle member's role (admin, member, or manager)."""
+        await self._request("PUT", "/api/v1/circles/members/role", json={"memberId": member_id, "role": role})
+
+    async def delete_circle_member(self, member_id: int) -> None:
+        """Remove a member from the circle."""
+        await self._request("DELETE", f"/api/v1/circles/{member_id}/members/delete")
+
+    async def redeem_points(self, member_id: int, points: int) -> None:
+        """Redeem reward points for a member."""
+        await self._request("POST", f"/api/v1/circles/{member_id}/members/points/redeem", json={"points": points})
+
     async def lookup_user_ids(self, usernames: list[str]) -> dict[str, int]:
         """Lookup user IDs from usernames (case-insensitive)."""
         members = await self.get_circle_members()
