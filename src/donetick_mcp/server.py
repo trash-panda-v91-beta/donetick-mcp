@@ -627,10 +627,9 @@ async def change_thing_state(
 
 def main() -> None:
     """Main entry point for the MCP server."""
-    print(f"Donetick MCP Server v{__version__} starting...")
     logger.info(f"Starting Donetick MCP Server v{__version__}")
     logger.info(f"Connecting to: {sanitize_url(config.donetick_base_url or '')}")
-    # stdio transport by default; blocks until the server stops
+    # transport comes from FASTMCP_* env vars (default stdio); blocks until the server stops
     mcp.run()
 
 

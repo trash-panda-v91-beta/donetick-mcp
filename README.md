@@ -27,6 +27,26 @@ docker run -e DONETICK_BASE_URL=https://donetick.example.com \
 
 Values can come from a `.env` file in the working directory.
 
+## Serve over HTTP
+
+By default the server talks stdio (one process per client). To expose it as an
+HTTP MCP endpoint behind a gateway (e.g. LiteLLM), set the FastMCP transport
+env vars - no code change required:
+
+| env | default |
+| --- | ------- |
+| `FASTMCP_TRANSPORT` | `stdio` |
+| `FASTMCP_HOST` | `127.0.0.1` |
+| `FASTMCP_PORT` | `8000` |
+| `FASTMCP_STREAMABLE_HTTP_PATH` | `/mcp` |
+
+Example - serve streamable-http on all interfaces:
+
+```bash
+FASTMCP_TRANSPORT=streamable-http FASTMCP_HOST=0.0.0.0 FASTMCP_PORT=8000 \
+  donetick-mcp
+```
+
 ## Tools
 
 Chores: `list_chores`, `get_chore`, `create_chore`, `complete_chore`, `update_chore`, `delete_chore`, `update_chore_priority`, `update_chore_assignee`, `skip_chore`, `update_subtask_completion`
