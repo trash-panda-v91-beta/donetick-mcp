@@ -1,6 +1,6 @@
 [global]
 line-length = 100
-exclude = ["CHANGELOG"]
+exclude = ["CHANGELOG.md"]
 
 # Stylistic rules that repeatedly flag generated docs; not worth reflowing prose.
 [MD013]
