@@ -116,7 +116,7 @@ class TestChoreTools:
     @pytest.mark.asyncio
     async def test_create_chore_invalid_username(self, httpx_mock: HTTPXMock):
         httpx_mock.add_response(
-            url=f"{BASE}/api/v1/circles/members/",
+            url=f"{BASE}/api/v1/circles/members",
             json=[
                 {
                     "id": 1,
@@ -183,7 +183,7 @@ class TestChoreTools:
     @pytest.mark.asyncio
     async def test_get_circle_members(self, httpx_mock: HTTPXMock):
         httpx_mock.add_response(
-            url=f"{BASE}/api/v1/circles/members/",
+            url=f"{BASE}/api/v1/circles/members",
             json=[
                 {
                     "id": 1,

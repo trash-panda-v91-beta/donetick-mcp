@@ -126,7 +126,7 @@ class TestUserLookupAndAssignment:
                 "pointsRedeemed": 0,
             },
         ]
-        httpx_mock.add_response(url=f"{BASE}/api/v1/circles/members/", json=members)
+        httpx_mock.add_response(url=f"{BASE}/api/v1/circles/members", json=members)
 
         async with client:
             user_map = await client.lookup_user_ids(["alice", "Bob Jones"])
