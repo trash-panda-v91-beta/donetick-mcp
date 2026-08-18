@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/trash-panda-v91-beta/donetick-mcp/compare/v1.1.0...v1.2.0) (2026-08-18)
+
+
+### Features
+
+* add chores, things, and project tools for the full api ([#34](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/34)) ([2bf9de8](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/2bf9de852904bad33402e4dd3f960d39be2fc4ca))
+* add circle management tools ([#35](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/35)) ([05ca9fe](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/05ca9fee6d7a1bdcc718ce397dcd4e45d10c0de3))
+* add create_thing tool ([#33](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/33)) ([4206cf1](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/4206cf1f5941b281ba1688d2f145ea91c8a764b3))
+
+
+### Bug Fixes
+
+* **client:** drop trailing slash on circle members endpoint (donetick redirects it) ([#30](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/30)) ([13a91c5](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/13a91c5f0942b149f7e9e671bd5d46e5cbdaa2a7))
+* **client:** match live donetick API shapes for details, priority, complete, assignees ([#32](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/32)) ([6994ec8](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/6994ec8235bde14fc643b50060a758ac784d7983))
+
 ## [1.1.0](https://github.com/trash-panda-v91-beta/donetick-mcp/compare/v1.0.0...v1.1.0) (2026-08-18)
 
 
