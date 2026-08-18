@@ -5,9 +5,7 @@ description = "MCP server for Donetick"
 readme = "README.md"
 requires-python = ">=3.14"
 license = "MIT"
-authors = [
-  { name = "trash-panda-v91-beta", email = "42897550+trash-panda-v91-beta@users.noreply.github.com" }
-]
+authors = [{ name = "trash-panda-v91-beta", email = "42897550+trash-panda-v91-beta@users.noreply.github.com" }]
 keywords = ["donetick", "mcp"]
 classifiers = [
   "License :: OSI Approved :: MIT License",
