@@ -625,6 +625,21 @@ async def change_thing_state(
     return f"Thing {thing_id} state updated."
 
 
+@mcp.tool()
+@_guard
+async def create_thing(name: str, type: str, state: str | None = None) -> str:
+    """Create a new thing (trackable value).
+
+    Args:
+        name: The thing's name
+        type: The thing's type (number, boolean, or text)
+        state: Optional initial state value
+    """
+    c = await get_client()
+    thing = await c.create_thing(name=name, type=type, state=state)
+    return json.dumps(thing.model_dump(), indent=2)
+
+
 def main() -> None:
     """Main entry point for the MCP server."""
     logger.info(f"Starting Donetick MCP Server v{__version__}")

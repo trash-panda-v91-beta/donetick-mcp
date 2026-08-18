@@ -1,5 +1,7 @@
 """Unit tests for the Donetick client (token auth, external + full API)."""
 
+import json
+
 import httpx2 as httpx
 import pytest
 from pytest_httpx2 import HTTPXMock
@@ -262,6 +264,20 @@ class TestThings:
         await client.change_thing_state(1, set_value="60")
         request = httpx_mock.get_requests()[0]
         assert request.url.params["set"] == "60"
+
+    @pytest.mark.asyncio
+    async def test_create_thing(self, client, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(
+            url=f"{BASE}/api/v1/things",
+            json={"res": {"id": 1, "name": "Water Tank", "type": "number", "state": "50"}},
+            method="POST",
+        )
+        thing = await client.create_thing(name="Water Tank", type="number", state="50")
+        assert thing.id == 1
+        assert thing.name == "Water Tank"
+        request = httpx_mock.get_requests()[0]
+        assert request.method == "POST"
+        assert json.loads(request.content) == {"name": "Water Tank", "type": "number", "state": "50"}
 
 
 class TestRateLimitAndErrors:

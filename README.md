@@ -51,7 +51,7 @@ FASTMCP_TRANSPORT=streamable-http FASTMCP_HOST=0.0.0.0 FASTMCP_PORT=8000 \
 
 Chores: `list_chores`, `get_chore`, `create_chore`, `complete_chore`, `update_chore`, `delete_chore`, `update_chore_priority`, `update_chore_assignee`, `skip_chore`, `update_subtask_completion`
 
-Things: `list_things`, `get_thing`, `get_thing_state`, `change_thing_state`
+Things: `list_things`, `get_thing`, `get_thing_state`, `change_thing_state`, `create_thing`
 
 Circle: `get_circle_members`
 

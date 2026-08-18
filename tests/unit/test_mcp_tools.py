@@ -55,7 +55,7 @@ class TestToolList:
     async def test_list_tools(self):
         tools = await list_tools()
         names = {t.name for t in tools}
-        assert len(tools) == 18
+        assert len(tools) == 19
         assert {
             "list_chores",
             "get_chore",
@@ -75,6 +75,7 @@ class TestToolList:
             "get_thing",
             "get_thing_state",
             "change_thing_state",
+            "create_thing",
         } == names
 
 
@@ -255,6 +256,16 @@ class TestThingTools:
         httpx_mock.add_response(url=f"{BASE}/eapi/v1/things/1/state/change?set=60", json={})
         result = await call_tool("change_thing_state", {"thing_id": 1, "set_value": "60"})
         assert "state updated" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_create_thing(self, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(
+            url=f"{BASE}/api/v1/things",
+            json={"res": {"id": 5, "name": "Water Tank", "type": "number", "state": "50"}},
+            method="POST",
+        )
+        result = await call_tool("create_thing", {"name": "Water Tank", "type": "number", "state": "50"})
+        assert '"id": 5' in result[0].text
 
 
 class TestErrors:
