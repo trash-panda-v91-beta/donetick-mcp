@@ -3,6 +3,12 @@
   "extends": ["github>trash-panda-v91-beta/renovate-config"],
   "packageRules": [
     {
+      "description": "Group jdx/hk (hk.pkl + mise tools) into one PR",
+      "matchPackageNames": ["jdx/hk"],
+      "matchDatasources": ["github-releases", "github-tags"],
+      "groupName": "jdx/hk"
+    },
+    {
       "description": "Auto merge Python dependency updates",
       "matchManagers": ["pep621", "uv"],
       "automerge": true,
