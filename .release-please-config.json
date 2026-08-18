@@ -3,7 +3,10 @@
 		".": {
 			"package-name": "donetick-mcp",
 			"release-type": "python",
-			"extra-files": [{ "type": "generic", "path": "README.md" }]
+			"extra-files": [
+				{ "type": "generic", "path": "README.md" },
+				{ "type": "toml", "path": "uv.lock", "jsonpath": "$.package[?(@.name.value=='donetick-mcp-server')].version" }
+			]
 		}
 	},
 	"bump-minor-pre-major": false,
