@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/trash-panda-v91-beta/donetick-mcp/compare/v1.2.0...v1.3.0) (2026-08-18)
+
+
+### Features
+
+* **deps:** update hk ( 1.54.1 ➔ 1.55.0 ) ([#37](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/37)) ([8d8bb1a](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/8d8bb1aedd7926f4e9d50802eebbe2aca7479abd))
+
 ## [1.2.0](https://github.com/trash-panda-v91-beta/donetick-mcp/compare/v1.1.0...v1.2.0) (2026-08-18)
 
 
