@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.3.0](https://github.com/trash-panda-v91-beta/donetick-mcp/compare/v1.2.0...v1.3.0) (2026-09-05)
+
+
+### Features
+
+* **deps:** update hk ( 1.54.1 ➔ 1.55.0 ) ([#37](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/37)) ([8d8bb1a](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/8d8bb1aedd7926f4e9d50802eebbe2aca7479abd))
+
+
+### Bug Fixes
+
+* **deps:** update fastmcp ( 4.0.0b3 ➔ 4.0.0b4 ) ([#41](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/41)) ([89c6953](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/89c69539a2f5bd20ff6288e7ab145fd8c6601072))
+* **deps:** update fastmcp ( 4.0.0b4 ➔ 4.0.0b5 ) ([#42](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/42)) ([62863ae](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/62863aed104b78528231efe291422a325e00a2f1))
+
+
+### Continuous Integration
+
+* **github-action:** update renovatebot/github-action ( v46.2.2 ➔ v46.2.4 ) ([#40](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/40)) ([f09b823](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/f09b8234276c06ce60b04b3c04870c522a138d46))
+* **github-action:** update renovatebot/github-action ( v46.2.4 ➔ v46.2.5 ) ([#43](https://github.com/trash-panda-v91-beta/donetick-mcp/issues/43)) ([b55a2f1](https://github.com/trash-panda-v91-beta/donetick-mcp/commit/b55a2f1ebecf306d4616e9ad391359e42f95974b))
+
 ## [1.2.0](https://github.com/trash-panda-v91-beta/donetick-mcp/compare/v1.1.0...v1.2.0) (2026-08-18)
 
 
