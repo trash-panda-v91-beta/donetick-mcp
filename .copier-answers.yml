@@ -6,5 +6,5 @@ container: true
 github_user: trash-panda-v91-beta
 language: python
 release_please: true
-repo_name: .
+repo_name: donetick-mcp
 tooling: false
