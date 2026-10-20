@@ -28,6 +28,10 @@ jobs:
       - name: Install mise
         uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4
 
+      - name: Install Python deps
+        if: hashFiles('uv.lock') != ''
+        run: uv sync --all-groups
+
       - name: Run checks
         run: mise run check
 
